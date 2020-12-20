@@ -10,10 +10,12 @@ The package `tools` includes the following:
 
 # Installation 
 
-Use pip to install these packages:
+Use pip to install:
+<br>
+` __pip install git+https://github.com/nastiag67/packages__ `
 
-> pip install git+https://github.com/nastiag67/packages
-
-
+<br>
+<br>
+<br>
 
 [![HitCount](http://hits.dwyl.com/nastiag67/https://githubcom/nastiag67/packages.svg)](http://hits.dwyl.com/nastiag67/https://githubcom/nastiag67/packages)
