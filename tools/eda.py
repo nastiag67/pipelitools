@@ -10,8 +10,8 @@ from pandas_profiling import ProfileReport
 
 from . import utils as u
 
-def test2():
-    print('functions ok')
+def test():
+    print('test ok')
 
 def get_randomdata(df, n=None, frac=None):
     """ Returns n or a fraction of randomly chosen rows.
