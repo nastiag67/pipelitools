@@ -15,6 +15,8 @@ The package `tools` includes the following:
 Use pip to install:
 <br>
 <br>
-`                                                     `
+`                                                     ` 
+<br>
 __`pip install git+https://github.com/nastiag67/packages`__
+<br>
 `                                                     `
