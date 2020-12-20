@@ -1,3 +1,3 @@
 Most frequently used tools for data analysis.
 
-https://github.com/nastiag67
+[![HitCount](http://hits.dwyl.com/nastiag67/https://githubcom/nastiag67/packages.svg)](http://hits.dwyl.com/nastiag67/https://githubcom/nastiag67/packages)
