@@ -9,16 +9,6 @@ from sklearn.neighbors import KNeighborsClassifier
 
 def metrics(model, X_test, y_test):
     """
-    Based on the count of each section, we can calculate precision and recall of each label:
-    - __Precision__ is a measure of the accuracy provided that a class label has been predicted. It is defined by:
-    precision = TP / (TP + FP)
-    - __Recall__ is true positive rate. It is defined as: Recall =  TP / (TP + FN)
-    So, we can calculate precision and recall of each class.
-    __F1 score:__
-    Now we are in the position to calculate the F1 scores for each label based on the precision and recall of that label
-    The F1 score is the harmonic average of the precision and recall, where an F1 score reaches its best value at 1
-    (perfect precision and recall) and worst at 0. It is a good way to show that a classifer has a good value for both
-    recall and precision.
     """
     if type(model) is LogisticRegression:
         LR_yhat = model.predict(X_test)
