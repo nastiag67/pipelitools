@@ -10,8 +10,9 @@ from pandas_profiling import ProfileReport
 
 from . import utils as u
 
-def test():
-    print('test ok')
+
+def test1():
+    print('test eda: ok')
 
 
 class Dataset:

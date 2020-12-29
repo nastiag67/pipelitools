@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 from . import utils as u
 
 
+def test2():
+    print('test outliers: ok')
+
+
 class Outliers:
 
     def __init__(self, df):

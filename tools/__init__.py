@@ -6,7 +6,8 @@ reload(utils)
 reload(outliers)
 reload(metrics)
 
-from .eda import *
+from .eda import Dataset
+from .outliers import Outliers
 from .utils import check, log, black, green, red, yellow
 
 
