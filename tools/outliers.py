@@ -15,7 +15,7 @@ class Outliers:
     def __init__(self, df):
         self.df = df
 
-    def z_score(self, columns, threshold=3):
+    def _z_score(self, columns, threshold=3):
         """Detects outliers based on z-score.
 
         Parameters:
@@ -48,7 +48,7 @@ class Outliers:
 
         return df_clean, df_outliers
 
-    def IQR(self, columns, q1=0.25):
+    def _IQR(self, columns, q1=0.25):
         """Detects outliers based on interquartile range (IQR).
 
         Parameters:
@@ -176,10 +176,10 @@ class Outliers:
         """
         if how == 'z_score':
             assert 'threshold' in kwargs, 'To use z-score method, threshold must be specified (default = 3)'
-            df_clean, df_outliers = self.z_score(columns, kwargs['threshold'])
+            df_clean, df_outliers = self._z_score(columns, kwargs['threshold'])
         elif how == 'IQR':
             assert 'q1' in kwargs, 'To use z-score method, q1 must be specified (default = 0.25)'
-            df_clean, df_outliers = self.IQR(columns, kwargs['q1'])
+            df_clean, df_outliers = self._IQR(columns, kwargs['q1'])
         else:
             raise AttributeError('Unknown outlier detection method. Existing methods: z_score, IQR')
         df = self.df.copy()
