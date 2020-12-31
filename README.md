@@ -10,7 +10,6 @@ The package `tools` includes the following:
 - `outliers` - methods of finding outliers;
 - `utils` - other helpful functions.
 
-
 # Installation 
 
 Use pip to install:
