@@ -13,7 +13,7 @@ def metrics(model, X_test, y_test):
     if type(model) is LogisticRegression:
         LR_yhat = model.predict(X_test)
         LR_yhat_prob = model.predict_proba(X_test)
-        jss = jaccard_similarity_score(y_test, LR_yhat)
+        jss = jaccard_score(y_test, LR_yhat)
         f1s = f1_score(y_test, LR_yhat, average='weighted')
         lls = log_loss(y_test, LR_yhat_prob)
         print(str(type(model)).split('.')[-1][:-2])
@@ -23,7 +23,7 @@ def metrics(model, X_test, y_test):
 
     elif type(model) is KNeighborsClassifier or type(model) is DecisionTreeClassifier or type(model) is svm.SVC:
         yhat = model.predict(X_test)
-        jss = jaccard_similarity_score(y_test, yhat)
+        jss = jaccard_score(y_test, yhat)
         f1s = f1_score(y_test, yhat, average='weighted')
         print(str(type(model)).split('.')[-1][:-2])
         print("Jaccard index: %.2f" % jss)
