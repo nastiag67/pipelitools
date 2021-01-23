@@ -31,3 +31,5 @@ def metrics(model, X_test, y_test):
 
     print()
 
+def test():
+    print('metrics success')
