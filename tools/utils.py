@@ -10,6 +10,9 @@ import datetime
 import pandas as pd
 from calendar import monthrange
 
+def test_utils():
+    print('utils ok')
+
 # LOGS
 def log(*m):
     print(" ".join(map(str, m)))
