@@ -111,7 +111,7 @@ def export(output, filename, sheetname, after=None, rangeToChange=None):
         writer.save()
 
 
-def check(expression, text=None, ):
+def check(expression, text=None):
     if expression == True:
         return log(green('PASSED.'), text)
     else:
