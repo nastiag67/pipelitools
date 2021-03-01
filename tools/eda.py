@@ -11,7 +11,7 @@ from pandas_profiling import ProfileReport
 from . import utils as u
 
 
-def test1():
+def test_eda():
     print('test eda: ok')
 
 
@@ -23,10 +23,42 @@ class Dataset:
         self.df = df
 
     def get_df(self):
-        """ Получить dataframe по миграции.
+        """ Return the dataframe.
         """
         return self.df
 
+    def load_folder(self, folder, type, n=5, col=True):
+        """ Loads n files of a single type from a folder and merges them to a single dataframe.
+
+        Parameters:
+        ----------
+        folder : str
+            Path to the folder with the files to load.
+
+        type : str
+            File extension (e.g. 'txt', 'csv').
+
+        n : int, optional, default=5
+            Number of files to load.
+
+        col : bool, optional, default=True
+            Merge files into a dataframe by column.
+
+        Returns
+        ----------
+        df : dataframe
+
+        """
+        # import glob
+        # import os
+        # path = r'H:\PYTHON\DATASETS\temp'  # use your path
+        # all_files = glob.glob(
+        #     os.path.join(path, "*.txt"))  # advisable to use os.path.join as this makes concatenation OS independent
+        #
+        # df_from_each_file = (pd.read_csv(f, usecols=['Date', 'Close']) for f in all_files)
+        # df = pd.concat(df_from_each_file, ignore_index=True)
+        # return df
+        pass
 
     def get_randomdata(self, n=None, frac=None):
         """ Returns n or a fraction of randomly chosen rows.

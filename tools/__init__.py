@@ -1,10 +1,11 @@
 from importlib import reload
 
-from . import eda, utils, outliers, metrics
+from . import eda, utils, outliers, metrics, clustering
 reload(eda)
 reload(utils)
 reload(outliers)
 reload(metrics)
+reload(clustering)
 
 from .eda import Dataset
 from .outliers import Outliers

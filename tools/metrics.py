@@ -7,6 +7,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 
+def test_metrics():
+    print('test metrics: ok')
+
+
 def metrics(model, X_test, y_test):
     """
     """
@@ -32,5 +36,3 @@ def metrics(model, X_test, y_test):
 
     print()
 
-def test():
-    print('metrics success')
