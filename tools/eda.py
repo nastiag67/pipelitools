@@ -1,4 +1,3 @@
-from pandas_profiling import ProfileReport
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -7,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats
 from pandas_profiling import ProfileReport
+from datetime import datetime
 
 from . import utils as u
 
@@ -83,7 +83,6 @@ class Dataset:
             df_sample = self.df.sample(n=100).iloc[:, 1:]
         return df_sample
 
-
     def get_overview(self, n=None, max_rows=1000):
         """ Returns Pandas Profiling report.
 
@@ -111,12 +110,11 @@ class Dataset:
         elif n is None and self.df.shape[0] > max_rows:
             u.log(u.yellow(f"Number of observations is above the benchmark (> {max_rows} rows), "
                         f"extracting overview for {max_rows} random samples..."))
-            data = self.get_randomdata(self.df, n=max_rows)
+            data = self.get_randomdata(n=max_rows)
             return ProfileReport(data, title='Pandas Profiling Report', minimal=True, html={'style':{'full_width':True}})
         else:
-            data = self.get_randomdata(self.df, n=n)
+            data = self.get_randomdata(n=n)
             return ProfileReport(data, title='Pandas Profiling Report', minimal=True, html={'style':{'full_width':True}})
-
 
     def get_summary(self,
                     y,
@@ -158,7 +156,7 @@ class Dataset:
         A description of the data in text format and plots if check_normdist=True.
 
         """
-        #get numeric data only
+        # get numeric data only
         numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
         df_numeric = self.df.select_dtypes(include=numerics)
 
@@ -236,7 +234,6 @@ class Dataset:
             u.log(u.black('Plotting distributions of variables against normal distribution'))
             check_distribution(df_numeric.columns, plot_cols=6)
 
-
         # Plotting boxplots
         def boxplots(columns, plot_cols=6):
             """
@@ -269,5 +266,13 @@ class Dataset:
             u.log(u.black('Plotting boxplots'))
             boxplots(df_numeric.columns, plot_cols=6)
 
+    def top_correlated(self):
+
+        corr = self.df.iloc[:, :-1].corr()
+        c = corr.abs()
+        s = c.unstack()
+        so = s.sort_values(kind="quicksort", ascending=False)
+        df_corr = pd.DataFrame(data=so, index=None).rename(columns={0: 'correlation'}).query("(correlation != 1)&(correlation > 0.7)")
+        return df_corr
 
 

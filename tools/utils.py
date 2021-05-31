@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May  9 17:44:14 2020
 
-@author: GE702PL
-"""
 import xlwings as xw
 from functools import wraps
 import datetime

@@ -1,3 +1,8 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import itertools
+
 from sklearn.metrics import jaccard_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import log_loss
@@ -35,4 +40,55 @@ def metrics(model, X_test, y_test):
         print("F1-score: %.2f" % f1s)
 
     print()
+
+
+def classification_metrics(X_train, y_train, y_test, y_pred, model, average='binary'):
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+    precision = metrics.precision_score(y_test, y_pred, average=average)
+    recall = metrics.recall_score(y_test, y_pred, average=average)
+    f1s = metrics.f1_score(y_test, y_pred, average=average)
+    print(f"F1-score: {round(f1s, 4)}")
+    print(f"Precision: {round(precision, 4)}")
+    print(f"Recall: {round(recall, 4)}")
+    print(f"Accuracy on train data: {round(model.score(X_train, y_train), 4)}")
+    print(f"Accuracy on test data: {round(accuracy, 4)}")
+
+    return accuracy, precision, recall, f1s
+
+
+def plot_confusion_matrix(y_test,
+                          y_pred,
+                          labels,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    # Compute confusion matrix
+    cnf_matrix = metrics.confusion_matrix(y_test, y_pred, labels=labels)
+    np.set_printoptions(precision=2)
+
+    if normalize:
+        cnf_matrix = cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]*100
+#         print("Normalized confusion matrix")
+
+    plt.imshow(cnf_matrix, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(labels))
+    plt.xticks(tick_marks, labels, rotation=90)
+    plt.yticks(tick_marks, labels)
+
+    fmt = '.1f' if normalize else 'd'
+    thresh = cnf_matrix.max() / 2.
+    for i, j in itertools.product(range(cnf_matrix.shape[0]), range(cnf_matrix.shape[1])):
+        plt.text(j, i, format(cnf_matrix[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cnf_matrix[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
 

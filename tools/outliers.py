@@ -2,11 +2,12 @@ import numpy as np
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 from . import utils as u
 
 
-def test2():
+def test_outliers():
     print('test outliers: ok')
 
 
@@ -69,7 +70,7 @@ class Outliers:
 
         """
         # remove outliers based on chosen columns
-        print(columns)
+        # print(columns)
         df_selected = self.df[columns]
 
         # remove outliers
@@ -83,7 +84,6 @@ class Outliers:
         df_outliers = self.df[~self.df.index.isin(df_clean.index)]
 
         return df_clean, df_outliers
-
 
     def _plot(self, columns, df_clean, df_outliers, plot_cols=4):
         """Plots the dataframe and marks the outliers by a red cross.
@@ -133,7 +133,6 @@ class Outliers:
                         marker='x',
                         color='red',
                         )
-
 
     def show_outliers(self, columns, how='z_score', show_plot=False, **kwargs):
         """Detects outliers using one of the available methods.
