@@ -7,13 +7,12 @@ import matplotlib.pyplot as plt
 import scipy.stats
 from pandas_profiling import ProfileReport
 from datetime import datetime
-
-from . import utils as u
+from tools import utils as u
 
 
 def test_eda():
     """ """
-    print('test eda: ok')
+    u.log(u.yellow('TESTING eda: '), 'OK')
 
 
 class Dataset:
@@ -338,3 +337,5 @@ class Dataset:
         return df_corr
 
 
+if __name__ == '__main__':
+    test_eda()

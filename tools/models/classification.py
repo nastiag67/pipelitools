@@ -5,8 +5,7 @@ from datetime import datetime
 
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler, RobustScaler
-from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
@@ -20,7 +19,11 @@ from sklearn.ensemble import VotingClassifier
 
 from sklearn import metrics
 
-from . import metrics as m
+from tools.models import metrics as m
+
+
+def test_classification():
+    print('test_classification: ok')
 
 
 class Simple:
@@ -435,3 +438,7 @@ class Ensemble:
 #     plt.plot(x0, (-b0 - b1 * x0) / b2, color='red')
 #     plt.title(name)
 #     return risk_train
+
+
+if __name__ == '__main__':
+    test_classification()

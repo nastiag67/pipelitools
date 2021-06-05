@@ -1,7 +1,11 @@
-from importlib import reload
-# from datetime import datetime
+"""
+Tools for data analysis and modeling.
+"""
 
-from . import classification, clustering, eda, features, metrics, outliers, utils
+from datetime import datetime
+
+from tools.models import clustering
+from tools.models import classification
 # reload(eda)
 # reload(utils)
 # reload(outliers)
@@ -10,11 +14,10 @@ from . import classification, clustering, eda, features, metrics, outliers, util
 # reload(features)
 # reload(classification)
 
-from .eda import Dataset
-from .outliers import Outliers
-from .features import *
-from .classification import *
+from tools.preprocessing.eda import Dataset
+from tools.preprocessing.features import *
+# from tools.models.classification import *
 from .utils import check, log, black, green, red, yellow
 
 print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-print('ok')
+# print('changed')

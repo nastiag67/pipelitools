@@ -13,7 +13,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 def test_metrics():
-    print('test metrics: ok')
+    print('test_metrics: ok')
 
 
 def metrics(model, X_test, y_test):
@@ -92,3 +92,6 @@ def plot_confusion_matrix(y_test,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+
+if __name__ == '__main__':
+    test_metrics()

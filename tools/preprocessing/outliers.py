@@ -4,11 +4,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-from . import utils as u
+from tools import utils as u
 
 
 def test_outliers():
-    print('test outliers: ok')
+    print('test_outliers: ok')
 
 
 class Outliers:
@@ -190,3 +190,6 @@ class Outliers:
 
         return df_clean, df_outliers, df
 
+
+if __name__ == '__main__':
+    test_outliers()

@@ -7,6 +7,10 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 
+def test_clustering():
+    print('test_clustering: ok')
+
+
 #######################################################################################################################
 # K means
 #######################################################################################################################
@@ -53,3 +57,5 @@ def n_clusters(Z, Kmax=10, n_init = 100):
             return K
 
 
+if __name__ == '__main__':
+    test_clustering()

@@ -7,6 +7,10 @@ from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.preprocessing import StandardScaler
 
 
+def test_features():
+    print('test_features: ok')
+
+
 class FeatureSelectionPipeline:
     """Assumes y - last column in df"""
     def __init__(self, df):
@@ -285,3 +289,6 @@ class FeatureEngineeringPipeline:
         """ """
         pass
 
+
+if __name__ == '__main__':
+    test_features()
