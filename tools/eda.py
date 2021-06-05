@@ -12,42 +12,51 @@ from . import utils as u
 
 
 def test_eda():
+    """ """
     print('test eda: ok')
 
 
 class Dataset:
-    """
-
-    """
+    """ """
     def __init__(self, df):
         self.df = df
 
     def get_df(self):
-        """ Return the dataframe.
-        """
+        """ """
         return self.df
 
     def load_folder(self, folder, type, n=5, col=True):
-        """ Loads n files of a single type from a folder and merges them to a single dataframe.
-
+        """Loads n files of a single type from a folder and merges them to a single dataframe.
+        
         Parameters:
         ----------
         folder : str
             Path to the folder with the files to load.
-
+        
         type : str
             File extension (e.g. 'txt', 'csv').
-
+        
         n : int, optional, default=5
             Number of files to load.
-
+        
         col : bool, optional, default=True
             Merge files into a dataframe by column.
 
-        Returns
+        Parameters
         ----------
-        df : dataframe
+        folder :
+            
+        type :
+            
+        n :
+             (Default value = 5)
+        col :
+             (Default value = True)
 
+        Returns
+        -------
+
+        
         """
         # import glob
         # import os
@@ -61,20 +70,27 @@ class Dataset:
         pass
 
     def get_randomdata(self, n=None, frac=None):
-        """ Returns n or a fraction of randomly chosen rows.
-
+        """Returns n or a fraction of randomly chosen rows.
+        
         Parameters:
         ----------
         n : int, optional, default=None
             Number of items from axis to return. Cannot be used with `frac`.
-
+        
         frac : float, optional, default=None
             Fraction of axis items to return. Cannot be used with `n`.
 
-        Returns
+        Parameters
         ----------
-        df_sample : dataframe
+        n :
+             (Default value = None)
+        frac :
+             (Default value = None)
 
+        Returns
+        -------
+
+        
         """
         if n is not None or frac is not None:
             # Randomly sample num_samples elements from dataframe
@@ -84,25 +100,30 @@ class Dataset:
         return df_sample
 
     def get_overview(self, n=None, max_rows=1000):
-        """ Returns Pandas Profiling report.
-
+        """Returns Pandas Profiling report.
+        
         Parameters:
         ----------
         n : int, default=None
             Number of items from axis to return.
-
+        
         max_rows : int, default=1000
             Number rows on which the ProfileReport is based.
+
+        Parameters
+        ----------
+        n :
+             (Default value = None)
+        max_rows :
+             (Default value = 1000)
+
+        Returns
+        -------
 
         Notes
         ----------
         Due to technical limitations, the optimal maximum number of rows on which the report is based is 1000.
         If the actual number of rows is higher than 1000, then the report is constructed on randomly chosen 1000 rows.
-
-        Returns
-        ----------
-        ProfileReport in html.
-
         """
         # max_rows = 1000  # the optimal maximum number of rows on which the report is based
         if n is None and self.df.shape[0] <= max_rows:
@@ -125,36 +146,53 @@ class Dataset:
                     check_normdist=False,
                     plot_boxplots=False):
         """Describes the data.
-
+        
         Parameters:
         ----------
         df : DataFrame
             dataframe on which the summary will be based.
-
+        
         y : Series
             response variable.
-
+        
         nan : bool, default=True
             True if need to return a list of NaNs.
-
+        
         formats : bool, default=True
             True if need to return all the formats of the columns.
-
+        
         categorical : bool, default=True
             True if need to return values which can be categorical.
             Variable is considered to be categorical if there are less uique values than num_ifcategorical.
-
+        
         min_less_0 : bool, default=True
             True if need check for variables which have negative values.
-
+        
         check_normdist : bool, default=True
             True if need check actual distribution against Normal distribution.
             Will make plots of each variable considered against the Normal distribution.
 
-        Returns
+        Parameters
         ----------
-        A description of the data in text format and plots if check_normdist=True.
+        y :
+            
+        nan :
+             (Default value = False)
+        formats :
+             (Default value = False)
+        categorical :
+             (Default value = False)
+        min_less_0 :
+             (Default value = False)
+        check_normdist :
+             (Default value = False)
+        plot_boxplots :
+             (Default value = False)
 
+        Returns
+        -------
+
+        
         """
         # get numeric data only
         numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
@@ -197,6 +235,19 @@ class Dataset:
 
         # Plotting actual distributions vs Normal distribution
         def check_distribution(columns, plot_cols=6):
+            """
+
+            Parameters
+            ----------
+            columns :
+                
+            plot_cols :
+                 (Default value = 6)
+
+            Returns
+            -------
+
+            """
             plt.style.use('seaborn-white')
 
             if plot_cols > len(df_numeric.columns) - 2:
@@ -236,8 +287,18 @@ class Dataset:
 
         # Plotting boxplots
         def boxplots(columns, plot_cols=6):
-            """
-            y - response variable column
+            """y - response variable column
+
+            Parameters
+            ----------
+            columns :
+                
+            plot_cols :
+                 (Default value = 6)
+
+            Returns
+            -------
+
             """
             plt.style.use('seaborn-white')
 
@@ -267,6 +328,7 @@ class Dataset:
             boxplots(df_numeric.columns, plot_cols=6)
 
     def top_correlated(self):
+        """ """
 
         corr = self.df.iloc[:, :-1].corr()
         c = corr.abs()
