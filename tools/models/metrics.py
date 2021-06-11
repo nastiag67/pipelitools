@@ -1,10 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import itertools
 
-from sklearn.metrics import jaccard_score
-from sklearn.metrics import f1_score
+from sklearn.metrics import jaccard_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import log_loss
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
@@ -43,10 +42,10 @@ def metrics(model, X_test, y_test):
 
 
 def classification_metrics(X_train, y_train, y_test, y_pred, model, average='binary'):
-    accuracy = metrics.accuracy_score(y_test, y_pred)
-    precision = metrics.precision_score(y_test, y_pred, average=average)
-    recall = metrics.recall_score(y_test, y_pred, average=average)
-    f1s = metrics.f1_score(y_test, y_pred, average=average)
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average=average)
+    recall = recall_score(y_test, y_pred, average=average)
+    f1s = f1_score(y_test, y_pred, average=average)
     print(f"F1-score: {round(f1s, 4)}")
     print(f"Precision: {round(precision, 4)}")
     print(f"Recall: {round(recall, 4)}")
@@ -67,7 +66,7 @@ def plot_confusion_matrix(y_test,
     Normalization can be applied by setting `normalize=True`.
     """
     # Compute confusion matrix
-    cnf_matrix = metrics.confusion_matrix(y_test, y_pred, labels=labels)
+    cnf_matrix = confusion_matrix(y_test, y_pred, labels=labels)
     np.set_printoptions(precision=2)
 
     if normalize:

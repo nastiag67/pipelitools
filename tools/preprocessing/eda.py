@@ -14,7 +14,6 @@ def test_eda():
     """ """
     u.log(u.yellow('TESTING eda: '), 'OK')
 
-
 class Dataset:
     """ """
     def __init__(self, df):
@@ -142,6 +141,7 @@ class Dataset:
                     formats=False,
                     categorical=False,
                     min_less_0=False,
+                    class_counts=False,
                     check_normdist=False,
                     plot_boxplots=False):
         """Describes the data.
@@ -231,6 +231,11 @@ class Dataset:
             u.log(u.black(f'Min value < 0: '), lst_less0)
         else:
             min_less_0 is False
+
+        if class_counts:
+            assert y.dtype == 'float' or  y.dtype == 'int', "y must be an integer or a float"
+            res = y.astype(int).value_counts().sort_index()
+            u.log(u.black(f'Observations per class:\n'), res)
 
         # Plotting actual distributions vs Normal distribution
         def check_distribution(columns, plot_cols=6):

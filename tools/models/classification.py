@@ -26,7 +26,7 @@ def test_classification():
     print('test_classification: ok')
 
 
-class Simple:
+class SimpleML:
     def __init__(self, X_train, y_train, X_test, y_test):
         self.X_train = X_train
         self.y_train = y_train
@@ -34,8 +34,13 @@ class Simple:
         self.y_test = y_test
 
     def classification_models(self,
+                              multiclass=False,
+                              steps=[],
+                              metric='accuracy',
                               average='binary',
                               randomized_search=False,
+                              nfolds=5,
+                              n_jobs=None,
                               verbose=0):
 
         """Runs classification models and chooses the best based on accuracy.
@@ -78,18 +83,33 @@ class Simple:
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
         # list of models
-        models = [
-            ("NB", GaussianNB()),
-            ("LR", LogisticRegression(max_iter=10000)),
-            ("SVM", SVC()),
-            ("KNN", KNeighborsClassifier()),
-            ('LDA', LinearDiscriminantAnalysis()),
-            ('QDA', QuadraticDiscriminantAnalysis()),
-            ("DT", DecisionTreeClassifier()),
-            ("MLP", MLPClassifier(random_state=42))
-                  ]
+        if multiclass:
+            models = [
+                ("NB", GaussianNB()),
+                ("LR", LogisticRegression(max_iter=10000)),
+                ("SVM", SVC()),
+                ("KNN", KNeighborsClassifier()),
+                ("DT", DecisionTreeClassifier()),
+            ]
+            assert average in ['micro', 'macro', 'samples', 'weighted'], \
+                "In multiclass classification metric should be one of ['micro', 'macro', 'samples', 'weighted']."
 
-        best_accuracy = 0
+            assert metric not in ['accuracy'], \
+                "Accuracy shouldn't be used as an evaluation metric for multiclass classification."
+
+        else:
+            models = [
+                ("NB", GaussianNB()),
+                ("LR", LogisticRegression(max_iter=10000)),
+                ("SVM", SVC()),
+                ("KNN", KNeighborsClassifier()),
+                ('LDA', LinearDiscriminantAnalysis()),
+                ('QDA', QuadraticDiscriminantAnalysis()),
+                ("DT", DecisionTreeClassifier()),
+                ("MLP", MLPClassifier(random_state=42))
+                      ]
+
+        best_metric = 0
         best_model = None
         allmodels = {}
         all_accuracy = []
@@ -97,16 +117,13 @@ class Simple:
         all_recall = []
         all_f1 = []
 
+        steps_model = steps[:]
+
         for name, model in models:
 
             # Create the pipeline
-            steps = [
-                ('scaler', StandardScaler()),
-                # ('scaler', RobustScaler()),
-                # ('pca', PCA(n_components=)),
-                (name, model)
-            ]
-            pipeline = Pipeline(steps)
+            steps_model.append((name, model))
+            pipeline = Pipeline(steps_model)
 
             # Specify the hyperparameter space
             if name == 'NB':
@@ -185,30 +202,38 @@ class Simple:
             print()
             print(f"{10*'='} {name} RESULT {10*'='}")
 
+            if multiclass:
+                cv_metric = metric + '_'+average
+            else:
+                cv_metric = metric
+
             if randomized_search:
                 # randomised search
                 cv = RandomizedSearchCV(estimator=pipeline,
                                         param_distributions=parameters,
-                                        cv=5,
-                                        # refit='accuracy',
-                                        scoring='accuracy',
-                                        n_iter=10,
-                                        verbose=verbose)
+                                        cv=nfolds,
+                                        # refit=cv_metric',
+                                        scoring=cv_metric,
+                                        # n_iter=10,
+                                        verbose=verbose,
+                                        n_jobs=n_jobs,
+                                        random_state=42)
 
             else:
                 # exhaustively consider all parameter combinations (cv=8 fold cross-validation)
                 cv = GridSearchCV(estimator=pipeline,
                                   param_grid=parameters,
-                                  cv=5,
-                                  # refit='accuracy',
-                                  scoring='accuracy',
-                                  verbose=verbose)
+                                  cv=nfolds,
+                                  # refit=cv_metric',
+                                  scoring=cv_metric,
+                                  verbose=verbose,
+                                  n_jobs=n_jobs)
 
             # Fit to the training set
             cv.fit(self.X_train, self.y_train)
 
             # Mean cross-validated score of the best_estimator
-            print(f"Best score: {round(cv.best_score_, 4)}")
+            print(f"Mean cross-validated score of the best_estimator: {round(cv.best_score_, 4)}")
 
             # Parameter setting that gave the best results on the validation data
             print(f"Tuned parameters: {cv.best_params_}")
@@ -219,14 +244,21 @@ class Simple:
             # METRICS
             accuracy, precision, recall, f1s = m.classification_metrics(self.X_train, self.y_train, self.y_test,
                                                                         y_pred, cv, average=average)
+            metric_summary = {'accuracy': accuracy,
+                              'precision': precision,
+                              'recall': recall,
+                              'f1s': f1s}
 
             # add to the dictionary of models
             allmodels[name] = cv
 
+            if not isinstance(y_pred, np.ndarray):
+                y_pred = y_pred.values
+
             # plot the confusion matrix
-            m.plot_confusion_matrix(self.y_test.values,
-                                    self.y_pred.values,
-                                    self.y_test.unique(),
+            m.plot_confusion_matrix(y_test=self.y_test.values,
+                                    y_pred=y_pred,
+                                    labels=self.y_test.unique(),
                                     normalize=True,
                                     title=f'Confusion matrix for {name}',
                                     cmap=plt.cm.Blues)
@@ -238,98 +270,153 @@ class Simple:
             all_recall.append(recall)
             all_f1.append(f1s)
 
-            # choose the best model based on ACCURACY
-            if accuracy > best_accuracy:
-                best_accuracy = accuracy
+            # choose the best model based on metric
+            if metric_summary[metric] > best_metric:
+                best_metric = metric_summary[metric]
                 best_model = cv
                 best_modelname = name
                 best_params = cv.best_params_
 
+            # next model's pipeline
+            steps_model = steps[:]
+
         print(50 * "_")
         print(f"Best model: {best_modelname}")
         print(f"Tuned parameters: {best_params}")
-        print(f"BEST ACCURACY: {round(best_accuracy, 4)}")
+        print(f"Best {metric}: {round(best_metric, 4)}")
 
         df_scores = dict(zip(allmodels.keys(), all_accuracy))
 
-        result = pd.DataFrame(df_scores, index=[0]).transpose().rename(columns={0: 'Accuracy'})
-        result['Precision'] = all_precision
-        result['Recall'] = all_recall
-        result['F1-score'] = all_f1
-        result = result.sort_values('Accuracy', ascending=False)
-        print(50 * "-")
+        result = pd.DataFrame(df_scores, index=[0]).transpose().rename(columns={0: 'accuracy'})
+        result['precision'] = all_precision
+        result['recall'] = all_recall
+        result['f1'] = all_f1
+        result = result.sort_values(metric, ascending=False)
+        print(50 * "=")
         print(round(result, 4))
-
-        return best_model, allmodels
-
-    def best_model(self, name, model, submission=False):
-
-        """Runs trainung pipeline and evaluation of model with given hyperparameters.
-
-        Parameters:
-        ----------
-        name : str
-            Custom name of the model.
-
-        model : pipeline or sklearn classification model.
-            Instance of sklearn model
-
-        X_train : DataFrame
-            Features used in training.
-
-        y_train : Series
-            Labels for training (1D vector).
-
-        X_test : DataFrame, default=None
-            Features used in testing.
-
-        y_test : Series, default=None
-            Labels for testing (1D vector).
-
-        submission : bool, default=False
-            If True, returns the labels trained on X_train, y_train
-
-        Returns
-        ----------
-
-        pipeline : dataframe
-        Pipeline of the trained model.
-
-        """
 
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-        # Create the pipeline
-        steps = [
-            ('scaler', StandardScaler()),
-            # ('pca', PCA()),
-            (name, model)
-        ]
+        return best_model, allmodels
 
-        pipeline = Pipeline(steps)
+    def best_model(self,
+                   name,
+                   model,
+                   steps=[],
+                   average='binary',
+                   metric='accuracy',
+                  randomized_search=False,
+                  nfolds=5,
+                  n_jobs=None,
+                  verbose=0):
+
+        steps_model = steps[:]
+
+        # Create the pipeline
+        steps_model.append((name, model))
+        pipeline = Pipeline(steps_model)
 
         # Fit to the training set
         pipeline.fit(self.X_train, self.y_train)
 
-        if submission:
-            return pipeline
-
         # Predict the labels of the test set
         y_pred = pipeline.predict(self.X_test)
 
-        accuracy = metrics.accuracy_score(self.y_test, y_pred)
-        print(f"ACCURACY on train data: {round(pipeline.score(self.X_train, self.y_train), 4)}")
-        print(f"ACCURACY on test data: {round(accuracy, 4)}")
+        # METRICS
+        m.classification_metrics(self.X_train, self.y_train, self.y_test,
+                                 y_pred, pipeline, average=average)
+
+        if not isinstance(y_pred, np.ndarray):
+            y_pred = y_pred.values
 
         # plot the confusion matrix
-        m.plot_confusion_matrix(self.y_test.values,
-                                y_pred.values,
-                                self.y_test.unique(),
-                                normalize=False,
+        m.plot_confusion_matrix(y_test=self.y_test.values,
+                                y_pred=y_pred,
+                                labels=self.y_test.unique(),
+                                normalize=True,
                                 title=f'Confusion matrix for {name}',
                                 cmap=plt.cm.Blues)
 
+        plt.show()
+
         return pipeline
+
+    def checkmodel(self,
+                   name,
+                   model,
+                   steps=[],
+                   parameters={},
+                   average='binary',
+                   multiclass=False,
+                   metric='accuracy',
+                   randomized_search=False,
+                   nfolds=5,
+                   n_jobs=None,
+                   verbose=0
+                   ):
+
+        assert ' ' not in name, "Parameter 'name' must be specified without space insde."
+
+        steps_model = steps[:]
+
+        # Create the pipeline
+        steps_model.append((name, model))
+        pipeline = Pipeline(steps_model)
+
+        if multiclass:
+            cv_metric = metric + '_'+average
+        else:
+            cv_metric = metric
+
+        if randomized_search:
+            cv = RandomizedSearchCV(estimator=pipeline,
+                                    param_distributions=parameters,
+                                    cv=nfolds,
+                                    # refit=cv_metric',
+                                    scoring=cv_metric,
+                                    # n_iter=10,
+                                    verbose=verbose,
+                                    n_jobs=n_jobs,
+                                    random_state=42)
+
+        else:
+            cv = GridSearchCV(estimator=pipeline,
+                              param_grid=parameters,
+                              cv=nfolds,
+                              # refit=cv_metric',
+                              scoring=cv_metric,
+                              verbose=verbose,
+                              n_jobs=n_jobs)
+
+        # Fit to the training set
+        cv.fit(self.X_train, self.y_train)
+
+        # Mean cross-validated score of the best_estimator
+        print(f"Mean cross-validated score of the best_estimator: {round(cv.best_score_, 4)}")
+
+        # Parameter setting that gave the best results on the validation data
+        print(f"Tuned parameters: {cv.best_params_}")
+
+        # Predict the labels of the test set
+        y_pred = cv.predict(self.X_test)
+
+        # METRICS
+        m.classification_metrics(self.X_train, self.y_train, self.y_test,
+                                            y_pred, cv, average=average)
+
+        # plot the confusion matrix
+        if not isinstance(y_pred, np.ndarray):
+            y_pred = y_pred.values
+        m.plot_confusion_matrix(y_test=self.y_test.values,
+                                y_pred=y_pred,
+                                labels=self.y_test.unique(),
+                                normalize=True,
+                                title=f'Confusion matrix for {name}',
+                                cmap=plt.cm.Blues)
+
+        plt.show()
+
+        return cv
 
 
 class Ensemble:
@@ -422,22 +509,25 @@ class Ensemble:
 
         return clf_stack
 
-# # Default function to fit a linear classifier and plot the decision boundary
-# def demo_clf(clf, X_train, y_train, name):
-#     clf.fit(X_train, y_train)
-#     risk_train = 1 - clf.score(X_train, y_train)
-#     print('Training risk:', risk_train)
-#
-#     plt.figure()
-#     sns.scatterplot(x=X_train['sepal_length'], y=X_train['sepal_width'], hue=y_train, style=y_train, markers=["o", "s"],
-#                     legend=[])
-#     x0 = np.arange(4.5, 7, .01)
-#     b0 = clf.intercept_
-#     b1 = clf.coef_[0, 0]
-#     b2 = clf.coef_[0, 1]
-#     plt.plot(x0, (-b0 - b1 * x0) / b2, color='red')
-#     plt.title(name)
-#     return risk_train
+
+class Boosting:
+    def __init__(self, X_train, y_train, X_test, y_test):
+        self.X_train = X_train
+        self.y_train = y_train
+        self.X_test = X_test
+        self.y_test = y_test
+
+    def gradient(self):
+        pass
+
+    def xg(self):
+        pass
+
+    def ada(self):
+        pass
+
+    def cat(self):
+        pass
 
 
 if __name__ == '__main__':
