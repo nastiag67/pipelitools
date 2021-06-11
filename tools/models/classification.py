@@ -17,8 +17,6 @@ from sklearn.neural_network import MLPClassifier
 
 from sklearn.ensemble import VotingClassifier
 
-from sklearn import metrics
-
 from tools.models import metrics as m
 
 
@@ -299,48 +297,6 @@ class SimpleML:
 
         return best_model, allmodels
 
-    def best_model(self,
-                   name,
-                   model,
-                   steps=[],
-                   average='binary',
-                   metric='accuracy',
-                  randomized_search=False,
-                  nfolds=5,
-                  n_jobs=None,
-                  verbose=0):
-
-        steps_model = steps[:]
-
-        # Create the pipeline
-        steps_model.append((name, model))
-        pipeline = Pipeline(steps_model)
-
-        # Fit to the training set
-        pipeline.fit(self.X_train, self.y_train)
-
-        # Predict the labels of the test set
-        y_pred = pipeline.predict(self.X_test)
-
-        # METRICS
-        m.classification_metrics(self.X_train, self.y_train, self.y_test,
-                                 y_pred, pipeline, average=average)
-
-        if not isinstance(y_pred, np.ndarray):
-            y_pred = y_pred.values
-
-        # plot the confusion matrix
-        m.plot_confusion_matrix(y_test=self.y_test.values,
-                                y_pred=y_pred,
-                                labels=self.y_test.unique(),
-                                normalize=True,
-                                title=f'Confusion matrix for {name}',
-                                cmap=plt.cm.Blues)
-
-        plt.show()
-
-        return pipeline
-
     def checkmodel(self,
                    name,
                    model,
@@ -477,57 +433,6 @@ class Ensemble:
         model, y_pred = self.pipe('Voting classifier', vc, submission=submission)
 
         return model
-
-    def stacking_2lvl(self, classifiers, meta_classifier):
-        print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
-        df_pred_train = pd.DataFrame(index=self.X_train.index)
-        df_pred_test = pd.DataFrame(index=self.X_test.index)
-        # Get the performance of each classifier individually
-        for clf_name, clf in classifiers:
-            pipeline, y_pred = self.pipe(clf_name, clf, self.X_train, self.y_train, self.X_test, self.y_test)
-            df_pred_train[clf_name] = pipeline.predict(self.X_train)
-            df_pred_test[clf_name] = y_pred
-
-        # Concatenate X_train with the predictions DataFrame
-        X_train_2nd = pd.concat([self.X_train, df_pred_train], axis=1)
-        X_test_2nd = pd.concat([self.X_test, df_pred_test], axis=1)
-
-        # don't do this, cuz dataset already preprocessed & scaled
-        # model, y_pred = pipe('Two level classifier', meta_classifier, X_train_2nd, y_train, X_test_2nd, y_test)
-
-        # Build the second-layer meta estimator
-        clf_stack = meta_classifier
-        clf_stack.fit(X_train_2nd, self.y_train)
-
-        # Obtain the final predictions from the second-layer estimator
-        y_pred = clf_stack.predict(X_test_2nd)
-
-        print('-' * 100)
-        print(f"META-CLASSIFIER:")
-        m.classification_metrics(self.X_train, self.y_train, self.y_test, y_pred, pipeline)
-
-        return clf_stack
-
-
-class Boosting:
-    def __init__(self, X_train, y_train, X_test, y_test):
-        self.X_train = X_train
-        self.y_train = y_train
-        self.X_test = X_test
-        self.y_test = y_test
-
-    def gradient(self):
-        pass
-
-    def xg(self):
-        pass
-
-    def ada(self):
-        pass
-
-    def cat(self):
-        pass
 
 
 if __name__ == '__main__':
