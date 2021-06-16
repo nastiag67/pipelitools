@@ -1,7 +1,7 @@
-from tools.models import classification, clustering, metrics
+from tools.models import models, clustering, metrics
 
 from importlib import reload
-reload(classification)
+reload(models)
 reload(clustering)
 reload(metrics)
 

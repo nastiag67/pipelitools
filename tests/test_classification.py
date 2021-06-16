@@ -5,7 +5,7 @@
 import pytest
 
 
-from tools.models.classification import *
+from tools.models.models import *
 
 
 def test_classification():
