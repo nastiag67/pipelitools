@@ -5,7 +5,6 @@ from datetime import datetime
 import random
 import os
 
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 from tools.models import metrics as m
@@ -99,6 +98,11 @@ class Model:
         steps_model = steps[:]
 
         # Create the pipeline
+        if multiclass:
+            from imblearn.pipeline import Pipeline
+        else:
+            from sklearn.pipeline import Pipeline
+
         steps_model.append((name, model))
         pipeline = Pipeline(steps_model)
 
@@ -134,11 +138,12 @@ class Model:
         print(f"Mean cross-validated score of the best_estimator: {round(cv.best_score_, 4)}")
 
         # Parameter setting that gave the best results on the validation data
-        df_tuned = pd.DataFrame(cv.best_params_, index=[0]).transpose().reset_index().rename(
-            columns={'index': 'Parameter', 0: 'Tuned value'})
-        df_tuned['Parameter'] = df_tuned.Parameter.str.partition('__').iloc[:, -1]
-        print(df_tuned)
-        # print(f"Tuned parameters: {pd.DataFrame(cv.best_params_)}")
+        if len(parameters) != 0:
+            df_tuned = pd.DataFrame(cv.best_params_, index=[0]).transpose().reset_index().rename(
+                columns={'index': 'Parameter', 0: 'Tuned value'})
+            df_tuned['Parameter'] = df_tuned.Parameter.str.partition('__').iloc[:, -1]
+            print(df_tuned)
+            # print(f"Tuned parameters: {pd.DataFrame(cv.best_params_)}")
 
         # Predict the labels of the test set
         y_pred = cv.predict(self.X_test)
@@ -153,7 +158,8 @@ class Model:
 
         m.plot_confusion_matrix(y_test=self.y_test.values,
                                 y_pred=y_pred,
-                                labels=self.y_test.unique(),
+                                labels=np.unique(self.y_test),
+                                # labels=self.y_test.unique(),
                                 normalize=True,
                                 title=f'Confusion matrix for {name}',
                                 cmap=plt.cm.Blues)
@@ -165,6 +171,9 @@ class Model:
         plt.show()
 
         return cv, y_pred
+
+    def learning_cuve(self):
+        pass
 
 
 if __name__ == '__main__':

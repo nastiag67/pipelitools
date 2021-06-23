@@ -65,6 +65,7 @@ def plot_confusion_matrix(y_test,
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
+
     # Compute confusion matrix
     cnf_matrix = confusion_matrix(y_test, y_pred, labels=labels)
     np.set_printoptions(precision=2)
