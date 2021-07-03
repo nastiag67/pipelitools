@@ -1,4 +1,4 @@
 
 # About
 
-Most frequently used tools for data analysis.
+Pipelines for data analysis and machine learning.
