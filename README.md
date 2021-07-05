@@ -4,6 +4,7 @@ Pipelines for data analysis and machine learning.
 
 ### Structure
 
+```
 tools/  
 |-- tools  
 	|-- __init__.py  
@@ -24,6 +25,7 @@ tools/
 |-- LICENSE.txt  
 |-- README.md  
 |-- requirements.txt  
+```
 
 ### Installation
 
