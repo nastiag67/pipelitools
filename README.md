@@ -5,8 +5,7 @@ Pipelines for data analysis and machine learning.
 ### Structure
 
 ```
-tools/  
-|-- tools  
+tools/tools  
 	|-- __init__.py  
 	|-- preprocessing  
 		|-- __init__.py  
@@ -17,14 +16,7 @@ tools/
 		|-- __init__.py  
 		|-- classification.py  
 		|-- metrics.py  
-	|-- plots.py  
 	|-- utils.py  
-|-- setup.py  
-|-- tests  
-|-- .gitignore  
-|-- LICENSE.txt  
-|-- README.md  
-|-- requirements.txt  
 ```
 
 ### Installation
