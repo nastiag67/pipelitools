@@ -1,7 +1,7 @@
 
 # About
 
-Most frequently used tools for data analysis.
+Most frequently used tools for data analysis and machine learning.
 
 
 # Installation 
