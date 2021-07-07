@@ -1,58 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import itertools
+import os
 
-from sklearn.metrics import jaccard_score, confusion_matrix
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.metrics import log_loss
-from sklearn.linear_model import LogisticRegression
-from sklearn import svm
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+from tools import utils as u
 
 
 def test_metrics():
+    """ """
     print('test_metrics: ok')
-
-
-def metrics(model, X_test, y_test):
-    """
-    """
-    if type(model) is LogisticRegression:
-        LR_yhat = model.predict(X_test)
-        LR_yhat_prob = model.predict_proba(X_test)
-        jss = jaccard_score(y_test, LR_yhat, average='micro')
-        f1s = f1_score(y_test, LR_yhat, average='weighted')
-        lls = log_loss(y_test, LR_yhat_prob)
-        print(str(type(model)).split('.')[-1][:-2])
-        print("Jaccard index: %.2f" % jss)
-        print("F1-score: %.2f" % f1s)
-        print("LogLoss: %.2f" % lls)
-
-    elif type(model) is KNeighborsClassifier or type(model) is DecisionTreeClassifier or type(model) is svm.SVC:
-        yhat = model.predict(X_test)
-        # average is required for multiclass/multilabel targets
-        jss = jaccard_score(y_test, yhat, average='micro')
-        f1s = f1_score(y_test, yhat, average='weighted')
-        print(str(type(model)).split('.')[-1][:-2])
-        print("Jaccard index: %.2f" % jss)
-        print("F1-score: %.2f" % f1s)
-
-    print()
-
-
-def classification_metrics(X_train, y_train, y_test, y_pred, model, average='binary'):
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=average)
-    recall = recall_score(y_test, y_pred, average=average)
-    f1s = f1_score(y_test, y_pred, average=average)
-    print(f"F1-score: {round(f1s, 4)}")
-    print(f"Precision: {round(precision, 4)}")
-    print(f"Recall: {round(recall, 4)}")
-    print(f"Accuracy on train data: {round(model.score(X_train, y_train), 4)}")
-    print(f"Accuracy on test data: {round(accuracy, 4)}")
-
-    return accuracy, precision, recall, f1s
 
 
 def plot_confusion_matrix(y_test,
@@ -61,9 +20,29 @@ def plot_confusion_matrix(y_test,
                           normalize=False,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
+    """Plots the confusion matrix. Normalization can be applied by setting `normalize=True`.
+
+    Parameters
+    ----------
+    y_test : np.ndarray
+        Testing values.
+    y_pred : np.ndarray
+        Predicted values.
+    labels : np.ndarray
+        Unique labels.
+    normalize : bool
+         (Default value = False)
+         True if need to normalize the data & represent as percentage out of 100%.
+    title : str
+         (Default value = 'Confusion matrix')
+         Title of the plot.
+    cmap : matplotlib.colors.LinearSegmentedColormap
+         (Default value = plt.cm.Blues)
+         Color map.
+
+    Returns
+    -------
+    Confusion matrix plot.
     """
 
     # Compute confusion matrix
@@ -72,7 +51,6 @@ def plot_confusion_matrix(y_test,
 
     if normalize:
         cnf_matrix = cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]*100
-#         print("Normalized confusion matrix")
 
     plt.imshow(cnf_matrix, interpolation='nearest', cmap=cmap)
     plt.title(title)
@@ -91,6 +69,60 @@ def plot_confusion_matrix(y_test,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+
+def metrics_report(model, name, X_test, y_test, y_train, data='test'):
+    """ Creates a report on a model. Saves confusion matrix and metrics to classification_report_{data} folder.
+
+    Note: it is recommended that data is specified explicitly!
+
+    Parameters
+    ----------
+    model : fitted model (e.g. sklearn.model_selection._search.GridSearchCV if GridSearchCV is used).
+        The fitted model.
+    name : str
+        Name of the fitted model.
+    X_test : pd.DataFrame.
+        Features used for testing.
+    y_test : pd.Series
+        Responses used for testing.
+    y_train : pd.Series
+        Responses used for training.
+    data : bool
+         (Default value = 'test')
+        Type of report to create depending on input data: 'test' for testing, 'validation' for validation.
+
+    Returns
+    -------
+    Prints out metrics from clasification_report and confusion matrix.
+    They are also saved in folder classification_report_{data}.
+    """
+
+    assert data in ['test', 'validation'], "Parameter 'data' must be either 'test', or 'validation'."
+
+    y_pred = model.predict(X_test)
+
+    a = classification_report(y_test, y_pred, labels=np.unique(y_train))
+    u.export_str(a, f"./classification_report_{data}/{name}.txt")
+    print(a)
+
+    # print(y_test.values)
+    # print(type(y_pred))
+    # plot the confusion matrix
+    if not isinstance(y_pred, np.ndarray):
+        y_pred = y_pred.values
+
+    plot_confusion_matrix(y_test=y_test.values,
+                          y_pred=y_pred,
+                          labels=np.unique(y_test),
+                          normalize=True,
+                          title=f'Confusion matrix for {name}',
+                          cmap=plt.cm.Blues)
+
+    # save figure to folder 'fig'
+    if os.path.exists("fig") is False:
+        os.mkdir("fig")
+    plt.savefig(f"./classification_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
 
 
 if __name__ == '__main__':

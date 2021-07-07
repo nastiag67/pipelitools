@@ -4,8 +4,6 @@ Tools for data analysis and modeling.
 
 __version__ = "1.0.0"
 
-from datetime import datetime
-
 from tools import preprocessing, models
 
 # from tools.models import clustering

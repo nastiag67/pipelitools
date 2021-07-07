@@ -12,23 +12,37 @@ def test_features():
 
 
 class FeatureSelectionPipeline:
-    """Assumes y - last column in df"""
+    """ A pipeline for feature selection
+
+    Note: Assumes the response is the last column in df.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe used for feature selection (includes features and the response).
+
+    """
     def __init__(self, df):
         self.df = df
         self.X = df.iloc[:, :-1]
         self.y = df.iloc[:, -1]
 
     def low_variance(self, threshold):
-        """
+        """ Feature selection based on low variance.
 
         Parameters
         ----------
-        threshold :
-            
+        threshold : float
+            Threshold against which the variance is calculated.
+
+        Example
+        -------
+        reduced_df = low_variance(df, 0.01)
+        X_test_new_reduced = low_variance(X_test_new, 0.01)
 
         Returns
         -------
-
+        Dataframe with selected features.
         """
         # Normalize the data
         normalized_df = self.df / self.df.mean()
@@ -50,20 +64,34 @@ class FeatureSelectionPipeline:
         return reduced_df
 
     def RFE_selection(self, n_features_to_select, step, mask=None):
-        """
+        """Recursive Feature Elimination based on random forest classifier.
 
         Parameters
         ----------
-        n_features_to_select :
-            
-        step :
-            
-        mask :
-             (Default value = None)
+        n_features_to_select : int
+            Number of features to be selected.
+        step : int
+            How many features to remove at each step.
+        mask : default=None
+             Existing feature selection filter, which can be used to select features on testing dataset.
+
+
+        Example
+        -------
+        n_features_to_select=300
+        reduced_df, mask = RFE_selection(df, n_features_to_select=n_features_to_select, step=1, mask=None)
+        X_test_new_reduced = RFE_selection(X_test_new, n_features_to_select=n_features_to_select, step=1, mask=mask)
 
         Returns
         -------
-
+        If mask is None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+        If mask is not None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+            mask :
+                Feature selection filter.
         """
 
         if mask is not None:
@@ -92,20 +120,39 @@ class FeatureSelectionPipeline:
         return reduced_df, mask
 
     def ensemble(self, models, n_features_to_select, mask=None):
-        """
+        """ Feature selection method which uses ensembles to select features.
 
         Parameters
         ----------
-        models :
-            
-        n_features_to_select :
-            
-        mask :
-             (Default value = None)
+        models : list of sklearn models
+            List of models.
+        n_features_to_select : int
+            Number of features to be selected.
+        mask : default=None
+             Existing feature selection filter, which can be used to select features on testing dataset.
+
+        Example
+        -------
+        # MODEL1
+        gbc = GradientBoostingClassifier()
+        # MODEL2
+        lda = LinearDiscriminantAnalysis(n_components=2)
+
+        models={'GBC': gbc, 'LDA': lda}
+
+        reduced_df, mask = f.ensemble(df, models, n_features_to_select=493, mask=None)
+        X_test_new_reduced = f.ensemble(X_test_new, n_features_to_select=493, mask=mask)
 
         Returns
         -------
-
+        If mask is None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+        If mask is not None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+            mask :
+                Feature selection filter.
         """
         if mask is not None:
             # Apply the mask to the feature dataset X
@@ -138,17 +185,31 @@ class FeatureSelectionPipeline:
         return reduced_df, meta_mask
 
     def tree_based(self, threshold, mask=None):
-        """
+        """ Feature selection method which uses trees to select features.
 
         Parameters
         ----------
-        threshold :
-            
-        mask :
-             (Default value = None)
+        threshold : int
+            Threshold based on which the features will be selected.
+        mask : default=None
+             Existing feature selection filter, which can be used to select features on testing dataset.
+
+        Example
+        -------
+        threshold=0.0016
+        reduced_df, mask = tree_based(df, threshold=threshold, mask=None)
+        X_test_new_reduced = tree_based(X_test_new, threshold=threshold, mask=mask)
 
         Returns
         -------
+        If mask is None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+        If mask is not None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+            mask :
+                Feature selection filter.
 
         """
 
@@ -178,17 +239,25 @@ class FeatureSelectionPipeline:
         return reduced_df, mask
 
     def extra_trees(self, st_scaler=True, mask=None):
-        """
+        """ Ferature selection method based on extra trees classifier.
 
         Parameters
         ----------
-        st_scaler :
-             (Default value = True)
-        mask :
-             (Default value = None)
+        st_scaler : default=True
+            True if standard scaler should be used.
+        mask : default=None
+             Existing feature selection filter, which can be used to select features on testing dataset.
 
         Returns
         -------
+        If mask is None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+        If mask is not None:
+            reduced_df : pd.DataFrame
+                Dataframe with selected features.
+            mask :
+                Feature selection filter.
 
         """
 
@@ -224,70 +293,69 @@ class FeatureSelectionPipeline:
 
         return reduced_df, mask
 
-    def L1(self):
-        """ """
-        pass
+    # def L1(self):
+    #     """ """
+    #     pass
 
 
-class FeatureEngineeringPipeline:
-    """ """
-    def __init__(self, df):
-        self.df = df
-
-    def normalization(self):
-        """ """
-        pass
-
-    def standartization(self):
-        """ """
-        pass
-
-    def _imputation(self, how):
-        """how - one of the following:
-            - average,
-            - same value outside of normal range,
-            - value from the middle of the range,
-            - use the missing value as target for regression problem,
-            - increase dimensionality by adding a binary indicator feature for each feature with missing values
-
-        Parameters
-        ----------
-        how :
-            
-
-        Returns
-        -------
-
-        """
-
-        pass
-
-    def missing(self, remove=True, impute=False, learn=False):
-        """
-
-        Parameters
-        ----------
-        remove :
-             (Default value = True)
-        impute :
-             (Default value = False)
-        learn :
-             (Default value = False)
-
-        Returns
-        -------
-
-        """
-
-        if impute:
-            result = self._imputation(how='method')
-
-        return result
-
-
-    def normalization(self):
-        """ """
-        pass
+# class FeatureEngineeringPipeline:
+#     """ """
+#     def __init__(self, df):
+#         self.df = df
+#
+#     def normalization(self):
+#         """ """
+#         pass
+#
+#     def standartization(self):
+#         """ """
+#         pass
+#
+#     def _imputation(self, how):
+#         """how - one of the following:
+#             - average,
+#             - same value outside of normal range,
+#             - value from the middle of the range,
+#             - use the missing value as target for regression problem,
+#             - increase dimensionality by adding a binary indicator feature for each feature with missing values
+#
+#         Parameters
+#         ----------
+#         how :
+#
+#
+#         Returns
+#         -------
+#
+#         """
+#
+#         pass
+#
+#     def missing(self, remove=True, impute=False, learn=False):
+#         """
+#
+#         Parameters
+#         ----------
+#         remove :
+#              (Default value = True)
+#         impute :
+#              (Default value = False)
+#         learn :
+#              (Default value = False)
+#
+#         Returns
+#         -------
+#
+#         """
+#
+#         if impute:
+#             result = self._imputation(how='method')
+#
+#         return result
+#
+#     def normalization(self):
+#         """ """
+#         pass
 
 
 if __name__ == '__main__':

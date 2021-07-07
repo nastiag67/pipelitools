@@ -18,20 +18,30 @@ def test_clustering():
 from sklearn.metrics import calinski_harabasz_score
 
 
-def n_clusters(Z, Kmax=10, n_init = 100):
-    """
-    if the number of features is larger than the number of samples, then you will be dealing with
-    the “curse of dimensionality”, and your k-means algorithm will not produce good results.
-    In this case, you do want to reduce the number of features that you have.
+def n_clusters(Z, Kmax=10, n_init=100):
+    """Calculates number of clusters using Calinski-Harabasz Score.
 
-    Z - projections on the PCs
+    Note: if number of features >> number of samples => “curse of dimensionality”. This function reduces number of
+        features using Calinski-Harabasz Score.
+
+    Z : np.array
+        projections on the PCs
         pca = PCA(n_components = ncomp, whiten=True)
         pca.fit(X) #  estimate the parameters of the PCA
         Z = pca.transform(X)
 
-    n_init - Number of different initialisations of the Kmeans algorithm
+    Kmax : int
+        (Default value = 10)
+        Maximum number of K.
 
-    Returns: optimal number of clusters where delta is 5 or less
+    n_init : int
+        (Default value = 100)
+        Number of different initialisations of the Kmeans algorithm.
+
+    Returns
+    -------
+    K : float
+        Optimal number of clusters where delta is 5 or less
     """
     W_all = np.zeros(shape=(Kmax - 1))
     K_all = np.arange(2, Kmax + 1)
