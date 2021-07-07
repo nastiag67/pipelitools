@@ -1,10 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from matplotlib.ticker import MaxNLocator
 
 from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from sklearn.metrics import calinski_harabasz_score
 
 
 def test_clustering():
@@ -14,8 +13,6 @@ def test_clustering():
 #######################################################################################################################
 # K means
 #######################################################################################################################
-
-from sklearn.metrics import calinski_harabasz_score
 
 
 def n_clusters(Z, Kmax=10, n_init=100):

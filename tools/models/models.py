@@ -19,11 +19,11 @@ class Model:
     ----------
     X_train : pd.DataFrame
         Features used in training.
-    y_train : np.Series
+    y_train : pd.Series
         Labels for training (1D vector).
     X_test : pd.DataFrame
         Features used in testing.
-    y_test : np.Series
+    y_test : pd.Series
         Labels for testing (1D vector).
 
     """
@@ -86,10 +86,13 @@ class Model:
         """
 
         assert ' ' not in name, "Parameter 'name' must be specified without space inside."
+        assert isinstance(self.y_train, pd.Series), "y_train must be of type pd.Series."
+        assert isinstance(self.y_test, pd.Series), "y_test must be of type pd.Series."
 
         if len(parameters) != 0:
             random_parameter = random.choice(list(parameters.keys()))
-            assert '__' in random_parameter and name in random_parameter, f"Parameters should be presented in a dictionary in the following way: \n\
+            assert '__' in random_parameter and name in random_parameter, \
+                f"Parameters should be presented in a dictionary in the following way: \n\
             '{name}__parameter': [parameter_value]"
 
         steps_model = steps[:]
@@ -146,28 +149,6 @@ class Model:
 
         # METRICS
         m.metrics_report(cv, name, self.X_test, self.y_test, self.y_train, data='validation')
-
-        # a = classification_report(self.y_test, y_pred, labels=np.unique(self.y_train))
-        # u.export_str(a, f"./classification_report/{name}.txt")
-        # print(a, '\n')
-        #
-        # # plot the confusion matrix
-        # if not isinstance(y_pred, np.ndarray):
-        #     y_pred = y_pred.values
-        #
-        # m.plot_confusion_matrix(y_test=self.y_test.values,
-        #                         y_pred=y_pred,
-        #                         labels=np.unique(self.y_test),
-        #                         # labels=self.y_test.unique(),
-        #                         normalize=True,
-        #                         title=f'Confusion matrix for {name}',
-        #                         cmap=plt.cm.Blues)
-        #
-        # if os.path.exists("fig") is False:
-        #     os.mkdir("fig")
-        # plt.savefig(f"./fig/{name}.png", dpi=300, bbox_inches='tight')
-        #
-        # plt.show()
 
         return cv, y_pred
 
