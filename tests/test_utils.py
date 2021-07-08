@@ -3,7 +3,7 @@
 import pytest
 import pandas as pd
 
-from tools import utils as u
+from pipelitools import utils as u
 
 
 indices_dict = {

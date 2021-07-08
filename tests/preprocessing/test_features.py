@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from tools.preprocessing import features as f
+from pipelitools.preprocessing import features as f
 from sklearn.datasets import make_classification
 
 # indices_dict = {

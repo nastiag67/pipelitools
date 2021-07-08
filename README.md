@@ -5,7 +5,7 @@ Pipelines for data analysis and machine learning.
 Most frequently used tools for data analysis and machine learning.
 
 ```
-tools/tools  
+pipelitools/pipelitools
 	|-- __init__.py  
 	|-- preprocessing  
 		|-- __init__.py  

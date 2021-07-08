@@ -3,7 +3,7 @@
 import pytest
 import pandas as pd
 
-from tools.preprocessing import outliers as o
+from pipelitools.preprocessing import outliers as o
 
 indices_dict = {
     "dataframe": pd.DataFrame(data={'a': [1, 2, 567, 4],

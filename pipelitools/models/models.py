@@ -6,7 +6,7 @@ import os
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
-from tools.models import metrics as m
+from pipelitools.models import metrics as m
 
 
 def test_models():

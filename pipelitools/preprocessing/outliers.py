@@ -3,7 +3,7 @@ from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from tools import utils as u
+from pipelitools import utils as u
 
 
 def test_outliers():

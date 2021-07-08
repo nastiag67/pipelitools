@@ -6,7 +6,7 @@ import os
 
 from sklearn.metrics import classification_report, confusion_matrix
 
-from tools import utils as u
+from pipelitools import utils as u
 
 
 def test_metrics():

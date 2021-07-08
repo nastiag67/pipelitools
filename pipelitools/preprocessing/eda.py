@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats
 from pandas_profiling import ProfileReport
-from tools import utils as u
+from pipelitools import utils as u
 
 
 def test_eda():

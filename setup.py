@@ -36,13 +36,13 @@ setup(
     long_description=long_description + '\n\n' + history,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords='pipelitool',
-    name="tools",
-    packages=find_packages(include=['tools', 'tools.*']),
+    keywords='pipelitools',
+    name="pipelitools",
+    packages=find_packages(include=['pipelitools', 'pipelitools.*']),
     test_suite='tests',
     tests_require=test_requirements,
-    url="https://github.com/nastiag67/tools",
-    version="1.1.0",
+    url="https://github.com/nastiag67/pipelitools",
+    version="1.1.1",
     zip_safe=False,
 
 )

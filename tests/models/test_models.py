@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.datasets import make_classification
 
-from tools.models import models as m
+from pipelitools.models import models as m
 
 
 @pytest.fixture(scope="function")

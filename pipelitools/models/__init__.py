@@ -1,4 +1,4 @@
-from tools.models import models, clustering, metrics
+from pipelitools.models import models, clustering, metrics
 
 from importlib import reload
 reload(models)
