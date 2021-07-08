@@ -105,9 +105,6 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
     a = classification_report(y_test, y_pred, labels=np.unique(y_train))
     u.export_str(a, f"./classification_report_{data}/{name}.txt")
     print(a)
-    # print('****************************************')
-    # print(type(y_test))
-    # print(type(y_train))
 
     # plot the confusion matrix
     if not isinstance(y_pred, np.ndarray):

@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import random
+import pickle
+import os
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
@@ -45,10 +47,12 @@ class Model:
                    randomized_search=False,
                    nfolds=5,
                    n_jobs=None,
+                   save_pickle=True,
                    verbose=0
                    ):
         """ Calculates the model based on the pipeline and hyperparameter grid.
         Then, evaluates metrics (f1-score, accuracy, precision, recall) and plots a confusion matrix.
+        Can save the final fitted model with pickle to load later.
 
         Parameters
         ----------
@@ -73,6 +77,10 @@ class Model:
             Number of folds in CV.
         n_jobs : int, optional (default = None)
             The number of parallel jobs to run
+        save_pickle : bool, optional (default=True)
+            Save the best fitted model with pickle.
+            To load do:
+            loaded_model = pickle.load(open('./pickle_models/model.sav', 'rb'))
         verbose : int, optional (default = 0)
             Verbose CV.
 
@@ -149,6 +157,13 @@ class Model:
 
         # METRICS
         m.metrics_report(cv, name, self.X_test, self.y_test, self.y_train, data='validation')
+
+        # SAVE MODEL USING PICKLE
+        if save_pickle:
+            if os.path.exists("./pickle_models/") is False:
+                os.mkdir("./pickle_models/")
+
+            pickle.dump(cv, open(f"./pickle_models/{name}.sav", 'wb'))
 
         return cv, y_pred
 
