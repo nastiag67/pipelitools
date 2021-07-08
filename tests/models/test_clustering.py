@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.datasets import make_classification
 from sklearn.decomposition import PCA
 
-from tools.models import clustering as c
+from pipelitools.models import clustering as c
 
 
 @pytest.fixture(scope="function")

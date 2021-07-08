@@ -3,7 +3,7 @@
 import pytest
 import pandas as pd
 
-from tools.preprocessing import eda
+from pipelitools.preprocessing import eda
 
 indices_dict = {
     "dataframe": pd.DataFrame(data={'a': [1, 2, 32, 4],
