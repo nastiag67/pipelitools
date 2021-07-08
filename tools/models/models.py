@@ -76,7 +76,7 @@ class Model:
         nfolds : int, optional (default = 5)
             Number of folds in CV.
         n_jobs : int, optional (default = None)
-            The number of parallel jobs to run
+            The number of parallel jobs to run.
         save_pickle : bool, optional (default=True)
             Save the best fitted model with pickle.
             To load do:
