@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['pandas', 'numpy', 'scipy', 'seaborn', 'matplotlib', 'scipy', 'pandas_profiling',
+requirements = ['pandas', 'numpy', 'scipy', 'seaborn', 'matplotlib', 'pandas_profiling',
                       'sklearn', 'datetime', 'xlwings']
 
 test_requirements = ['pytest>=3', ]
@@ -42,7 +42,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url="https://github.com/nastiag67/tools",
-    version="1.0.0",
+    version="1.1.0",
     zip_safe=False,
 
 )

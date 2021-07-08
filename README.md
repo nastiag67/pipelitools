@@ -2,7 +2,7 @@
 
 Pipelines for data analysis and machine learning.
 
-### Structure
+Most frequently used tools for data analysis and machine learning.
 
 ```
 tools/tools  
@@ -28,4 +28,9 @@ pip install pipelitools
 ### Usage
 
 This package was used in [University of Oxford MSc dissertation project](https://github.com/nastiag67/ecgn).
+
+Use pip to install:
+<br>
+<br>
+__`pip install git+https://github.com/nastiag67/packages`__
 

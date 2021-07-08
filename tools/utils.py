@@ -1,39 +1,13 @@
+import matplotlib.pyplot as plt
 
 import xlwings as xw
 from functools import wraps
 import datetime
 import pandas as pd
 from calendar import monthrange
+import os
+import errno
 
-
-def test_utils():
-    print('test utils: ok')
-
-
-# LOGS
-def log(*m):
-    print(" ".join(map(str, m)))
-
-
-def black(s):
-    return '\033[1;30m%s\033[m' % s
-
-
-def green(s):
-    return '\033[1;32m%s\033[m' % s
-
-
-def red(s):
-    return '\033[1;31m%s\033[m' % s
-
-
-def yellow(s):
-    return '\033[1;33m%s\033[m' % s
-
-
-# def log_exit(*m):
-#     log(red("ERROR:"), *m)
-#     exit(1)
 
 def to_dates(df, cols):
     """ Changes column format to datetime.
@@ -54,68 +28,6 @@ def to_dates(df, cols):
     for col in cols:
         df[col] = pd.to_datetime(df[col])
     return df
-
-
-def text_format(bold=False, underline=False, red=False, green=False, yellow=False):
-    
-    tags=[]
-    
-    if bold==True:
-        tag='\033[1m'
-        tags.append(tag)
-        
-    if underline==True:
-        tag='\033[4m'
-        tags.append(tag)
-
-    if red==True:
-        tag='\033[91m'
-        tags.append(tag)
-
-    if green==True:
-        tag='\033[92m'
-        tags.append(tag)
-
-    if yellow==True:
-        tag='\033[93m'
-        tags.append(tag)
-        
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            msg = func(*args, **kwargs)
-            return ('{}'*len(tags)).format(*tags) + msg
-        # Return the decorated function
-        return wrapper
-    # Return the decorator
-    return decorator
-
-
-def export(output, filename, sheetname, after=None, rangeToChange=None):
-    try:
-        # UPDATE EXCEL
-        wb = xw.Book(filename+'.xlsx')
-        try:
-            sht1 = wb.sheets[sheetname]
-        except:
-            if after!=None:
-                wb.sheets.add(name=sheetname)
-            else:
-                wb.sheets.add(name=sheetname, after = after)
-            sht1 = wb.sheets[sheetname]
-        sht1.range('A1').value = output
-    except FileNotFoundError:
-        # EXPORT
-        writer = pd.ExcelWriter(filename + '.xlsx')
-        output.to_excel(writer, sheet_name=sheetname)
-        writer.save()
-
-
-def check(expression, text=None):
-    if expression == True:
-        return log(green('PASSED.'), text)
-    else:
-        return log(red('ERROR.'), text)
 
 
 def get_new_date(date, delta_days):
@@ -187,6 +99,9 @@ def offset_end_date(date, mths_offset):
     if len(date) != 10:
         raise ValueError("date format is wrong, expected format: 'DD.MM.YYYY'")
 
+    if mths_offset == 0:
+        return date
+
     d = int(date[0:2])
     m = int(date[3:5])
     y = int(date[6:10])
@@ -248,5 +163,108 @@ def columns_list(df, dictionary=False):
             print("'" + i + "'" + ":" + "'" + "'" + ",")
 
 
-def test():
-    print('utils success')
+def text_format(bold=False, underline=False, red=False, green=False, yellow=False):
+    
+    tags = []
+    
+    if bold:
+        tag='\033[1m'
+        tags.append(tag)
+        
+    if underline:
+        tag='\033[4m'
+        tags.append(tag)
+
+    if red:
+        tag='\033[91m'
+        tags.append(tag)
+
+    if green:
+        tag='\033[92m'
+        tags.append(tag)
+
+    if yellow:
+        tag = '\033[93m'
+        tags.append(tag)
+        
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            msg = func(*args, **kwargs)
+            return ('{}'*len(tags)).format(*tags) + msg
+        # Return the decorated function
+        return wrapper
+    # Return the decorator
+    return decorator
+
+
+def export_str(output, filename):
+    """
+    To export & create folder in current directory, do filename="./classification_report/name.txt"
+    """
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(filename, "w") as f:
+        f.write(output)
+
+
+def export_xls(output, filename, sheetname, after=None):
+    try:
+        # UPDATE EXCEL
+        wb = xw.Book(filename+'.xlsx')
+        try:
+            sht1 = wb.sheets[sheetname]
+        except:
+            if after!=None:
+                wb.sheets.add(name=sheetname)
+            else:
+                wb.sheets.add(name=sheetname, after = after)
+            sht1 = wb.sheets[sheetname]
+        sht1.range('A1').value = output
+    except FileNotFoundError:
+        # EXPORT
+        writer = pd.ExcelWriter(filename + '.xlsx')
+        output.to_excel(writer, sheet_name=sheetname)
+        writer.save()
+
+
+def export_pic(fig_name, folder=None):
+    if folder:
+        if os.path.exists(folder) is False:
+            os.mkdir(folder)
+        plt.savefig(f"./{folder}/{fig_name}.png", dpi=300, bbox_inches='tight')
+    else:
+        plt.savefig(f"{fig_name}.png", dpi=300, bbox_inches='tight')
+
+
+# LOGS
+def log(*m):
+    print(" ".join(map(str, m)))
+
+
+def black(s):
+    return '\033[1;30m%s\033[m' % s
+
+
+def green(s):
+    return '\033[1;32m%s\033[m' % s
+
+
+def red(s):
+    return '\033[1;31m%s\033[m' % s
+
+
+def yellow(s):
+    return '\033[1;33m%s\033[m' % s
+
+
+def check(expression, text=None):
+    if expression:
+        return log(green('PASSED.'), text)
+    else:
+        return log(red('ERROR.'), text)

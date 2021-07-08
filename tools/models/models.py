@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from datetime import datetime
 import random
+import pickle
 import os
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -10,23 +9,23 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from tools.models import metrics as m
 
 
-def test_classification():
+def test_models():
     """ """
-    print('test_classification: ok')
+    print('test_models: ok')
 
 
 class Model:
-    """Runs a model, plots confusion matrix, calculates the metrics (f1 score, accuracy, precision, recall).
+    """Runs a model, plots confusion matrix, calculates the metrics and outputs the reports in a folder.
 
     Parameters
     ----------
     X_train : pd.DataFrame
         Features used in training.
-    y_train : np.Series
+    y_train : pd.Series
         Labels for training (1D vector).
     X_test : pd.DataFrame
         Features used in testing.
-    y_test : np.Series
+    y_test : pd.Series
         Labels for testing (1D vector).
 
     """
@@ -48,10 +47,12 @@ class Model:
                    randomized_search=False,
                    nfolds=5,
                    n_jobs=None,
+                   save_pickle=True,
                    verbose=0
                    ):
         """ Calculates the model based on the pipeline and hyperparameter grid.
         Then, evaluates metrics (f1-score, accuracy, precision, recall) and plots a confusion matrix.
+        Can save the final fitted model with pickle to load later.
 
         Parameters
         ----------
@@ -75,7 +76,11 @@ class Model:
         nfolds : int, optional (default = 5)
             Number of folds in CV.
         n_jobs : int, optional (default = None)
-            The number of parallel jobs to run
+            The number of parallel jobs to run.
+        save_pickle : bool, optional (default=True)
+            Save the best fitted model with pickle.
+            To load do:
+            loaded_model = pickle.load(open('./pickle_models/model.sav', 'rb'))
         verbose : int, optional (default = 0)
             Verbose CV.
 
@@ -89,10 +94,13 @@ class Model:
         """
 
         assert ' ' not in name, "Parameter 'name' must be specified without space inside."
+        assert isinstance(self.y_train, pd.Series), "y_train must be of type pd.Series."
+        assert isinstance(self.y_test, pd.Series), "y_test must be of type pd.Series."
 
         if len(parameters) != 0:
             random_parameter = random.choice(list(parameters.keys()))
-            assert '__' in random_parameter and name in random_parameter, f"Parameters should be presented in a dictionary in the following way: \n\
+            assert '__' in random_parameter and name in random_parameter, \
+                f"Parameters should be presented in a dictionary in the following way: \n\
             '{name}__parameter': [parameter_value]"
 
         steps_model = steps[:]
@@ -142,39 +150,32 @@ class Model:
             df_tuned = pd.DataFrame(cv.best_params_, index=[0]).transpose().reset_index().rename(
                 columns={'index': 'Parameter', 0: 'Tuned value'})
             df_tuned['Parameter'] = df_tuned.Parameter.str.partition('__').iloc[:, -1]
-            print(df_tuned)
-            # print(f"Tuned parameters: {pd.DataFrame(cv.best_params_)}")
+            print(df_tuned, '\n')
 
         # Predict the labels of the test set
         y_pred = cv.predict(self.X_test)
 
         # METRICS
-        m.classification_metrics(self.X_train, self.y_train, self.y_test,
-                                            y_pred, cv, average=average)
+        m.metrics_report(cv, name, self.X_test, self.y_test, self.y_train, data='validation')
 
-        # plot the confusion matrix
-        if not isinstance(y_pred, np.ndarray):
-            y_pred = y_pred.values
+        # SAVE MODEL USING PICKLE
+        if save_pickle:
+            if os.path.exists("./pickle_models/") is False:
+                os.mkdir("./pickle_models/")
 
-        m.plot_confusion_matrix(y_test=self.y_test.values,
-                                y_pred=y_pred,
-                                labels=np.unique(self.y_test),
-                                # labels=self.y_test.unique(),
-                                normalize=True,
-                                title=f'Confusion matrix for {name}',
-                                cmap=plt.cm.Blues)
-
-        if os.path.exists("fig") is False:
-            os.mkdir("fig")
-        plt.savefig(f"./fig/{name}.png", dpi=300, bbox_inches='tight')
-
-        plt.show()
+            pickle.dump(cv, open(f"./pickle_models/{name}.sav", 'wb'))
 
         return cv, y_pred
+
+    def evaluate_test(self, model, name, X_test, y_test, y_train):
+        m.metrics_report(model, name, X_test, y_test, y_train, data='test')
 
     def learning_cuve(self):
         pass
 
+    def ROC_ACU(self):
+        pass
+
 
 if __name__ == '__main__':
-    test_classification()
+    test_models()

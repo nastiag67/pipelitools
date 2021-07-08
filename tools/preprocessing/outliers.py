@@ -2,7 +2,6 @@ import numpy as np
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
-from datetime import datetime
 
 from tools import utils as u
 
@@ -12,6 +11,14 @@ def test_outliers():
 
 
 class Outliers:
+    """Shows outliers calculated by one of the available functions.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe (icluding features and responses).
+
+    """
 
     def __init__(self, df):
         self.df = df

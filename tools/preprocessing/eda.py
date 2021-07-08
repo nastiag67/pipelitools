@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -6,13 +5,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats
 from pandas_profiling import ProfileReport
-from datetime import datetime
 from tools import utils as u
 
 
 def test_eda():
     """ """
     u.log(u.yellow('TESTING eda: '), 'OK')
+
 
 class Dataset:
     """ """
@@ -87,14 +86,15 @@ class Dataset:
 
         Returns
         -------
-
+        pd.DataFrame - sample from original dataframe.
         
         """
+        assert isinstance(self.df, pd.DataFrame), 'df must be a dataframe'
         if n is not None or frac is not None:
             # Randomly sample num_samples elements from dataframe
-            df_sample = self.df.sample(n=n, frac=frac).iloc[:, 1:]
+            df_sample = self.df.sample(n=n, frac=frac, random_state=42).iloc[:, 1:]
         else:
-            df_sample = self.df.sample(n=100).iloc[:, 1:]
+            df_sample = self.df.sample(n=n, random_state=42).iloc[:, 1:]
         return df_sample
 
     def get_overview(self, n=None, max_rows=1000):
@@ -117,6 +117,7 @@ class Dataset:
 
         Returns
         -------
+        Pandas Profiling report.
 
         Notes
         ----------
@@ -171,26 +172,9 @@ class Dataset:
             True if need check actual distribution against Normal distribution.
             Will make plots of each variable considered against the Normal distribution.
 
-        Parameters
-        ----------
-        y :
-            
-        nan :
-             (Default value = False)
-        formats :
-             (Default value = False)
-        categorical :
-             (Default value = False)
-        min_less_0 :
-             (Default value = False)
-        check_normdist :
-             (Default value = False)
-        plot_boxplots :
-             (Default value = False)
-
         Returns
         -------
-
+        Data description depending on the input parameters (charts, strings, lists, etc).
         
         """
         # get numeric data only
@@ -238,18 +222,17 @@ class Dataset:
             u.log(u.black(f'Observations per class:\n'), res)
 
         # Plotting actual distributions vs Normal distribution
-        def check_distribution(columns, plot_cols=6):
-            """
+        def check_distribution(plot_cols=6):
+            """ Checks the variable distribution against normal distribution.
 
             Parameters
             ----------
-            columns :
-                
             plot_cols :
                  (Default value = 6)
 
             Returns
             -------
+            Distribution plot for each variable.
 
             """
             plt.style.use('seaborn-white')
@@ -290,19 +273,17 @@ class Dataset:
             check_distribution(df_numeric.columns, plot_cols=6)
 
         # Plotting boxplots
-        def boxplots(columns, plot_cols=6):
-            """y - response variable column
+        def boxplots(plot_cols=6):
+            """Makes boxplots for each variable.
 
             Parameters
             ----------
-            columns :
-                
             plot_cols :
                  (Default value = 6)
 
             Returns
             -------
-
+            Boxplot for each variable.
             """
             plt.style.use('seaborn-white')
 
@@ -332,7 +313,7 @@ class Dataset:
             boxplots(df_numeric.columns, plot_cols=6)
 
     def top_correlated(self):
-        """ """
+        """ Returns a dataframe of top correlated features."""
 
         corr = self.df.iloc[:, :-1].corr()
         c = corr.abs()
