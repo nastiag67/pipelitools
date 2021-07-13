@@ -103,7 +103,7 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
     y_pred = model.predict(X_test)
 
     a = classification_report(y_test, y_pred, labels=np.unique(y_train))
-    u.export_str(a, f"./classification_report_{data}/{name}.txt")
+    u.export_str(a, f"./temp_report_{data}/{name}.txt")
     print(a)
 
     # plot the confusion matrix
@@ -120,7 +120,7 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
     # save figure to folder 'fig'
     if os.path.exists("fig") is False:
         os.mkdir("fig")
-    plt.savefig(f"./classification_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
+    plt.savefig(f"./temp_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
 
 
 if __name__ == '__main__':

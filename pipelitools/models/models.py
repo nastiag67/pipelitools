@@ -90,9 +90,8 @@ class Model:
             The fitted model.
         y_pred : np.ndarray
             predicted values.
-        Figures are saved in a folder 'fig'.
+        Figures are saved in a separate folder.
         """
-
         assert ' ' not in name, "Parameter 'name' must be specified without space inside."
         assert isinstance(self.y_train, pd.Series), "y_train must be of type pd.Series."
         assert isinstance(self.y_test, pd.Series), "y_test must be of type pd.Series."
@@ -160,10 +159,10 @@ class Model:
 
         # SAVE MODEL USING PICKLE
         if save_pickle:
-            if os.path.exists("./pickle_models/") is False:
-                os.mkdir("./pickle_models/")
+            if os.path.exists("./temp_pickle_models/") is False:
+                os.mkdir("./temp_pickle_models/")
 
-            pickle.dump(cv, open(f"./pickle_models/{name}.sav", 'wb'))
+            pickle.dump(cv, open(f"./temp_pickle_models/{name}.sav", 'wb'))
 
         return cv, y_pred
 
