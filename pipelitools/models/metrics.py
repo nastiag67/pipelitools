@@ -4,7 +4,8 @@ import pandas as pd
 import itertools
 import os
 
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, auc
+from sklearn.metrics import precision_recall_curve
 
 from pipelitools import utils as u
 
@@ -103,7 +104,7 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
     y_pred = model.predict(X_test)
 
     a = classification_report(y_test, y_pred, labels=np.unique(y_train))
-    u.export_str(a, f"./classification_report_{data}/{name}.txt")
+    u.export_str(a, f"./temp_report_{data}/{name}.txt")
     print(a)
 
     # plot the confusion matrix
@@ -118,9 +119,105 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
                           cmap=plt.cm.Blues)
 
     # save figure to folder 'fig'
-    if os.path.exists("fig") is False:
-        os.mkdir("fig")
-    plt.savefig(f"./classification_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
+    if os.path.exists(f"./temp_report_{data}") is False:
+        os.mkdir(f"./temp_report_{data}")
+    plt.savefig(f"./temp_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
+
+
+def learning_cuve(training, validation, name='Metric'):
+    """
+    training : list
+        List of training metrics.
+
+    validation : list
+        List of validation metrics.
+    """
+    plt.plot(training, label='train', color='C0', linestyle='-')
+    plt.plot(validation, label='valid', color='C0', linestyle=':')
+    plt.title(f"{name} learning curve")
+    plt.xlabel("Epochs")
+    plt.ylabel(name)
+    plt.legend()
+
+
+def ROCcurve_multiclass(name, y_train, y_pred, y_test, data='validation'):
+
+    try:
+        y_test.shape[1] and y_pred.shape[1]
+    except IndexError:
+        raise ValueError(
+            'In a multiclass case, y_test and y_pred must be converted into a matrix of dummy variables \
+            (e.g. using pd.get_dummies(y_pred)).')
+
+    print(roc_auc_score(y_test, y_pred, average='macro'))
+
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    n_classes = y_train.shape[1]
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+
+    # Compute macro-average ROC curve and ROC area
+    fpr["macro"], tpr["macro"], _ = roc_curve(y_test.ravel(), y_pred.ravel())
+    roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+    # Plot ROC curve
+    plt.figure()
+    plt.plot(fpr["macro"], tpr["macro"], '--',
+             label='macro-average ROC curve (area = {0:0.2f})'
+                   ''.format(roc_auc["macro"]))
+    for i in range(n_classes):
+        plt.plot(fpr[i], tpr[i], label='class {0} (area = {1:0.2f})'
+                                       ''.format(i, roc_auc[i]))
+
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlim([-0.02, 1])
+    plt.ylim([0, 1.02])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f"ROC curve for {name}")
+    plt.legend(loc="lower right")
+
+    if os.path.exists(f"./temp_report_{data}") is False:
+        os.mkdir(f"./temp_report_{data}")
+    plt.savefig(f"./temp_report_{data}/{name}_ROC.png", dpi=300, bbox_inches='tight')
+
+    plt.show()
+
+
+def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
+    """ Precision-Recall curve for multiclass classification.
+    """
+
+    try:
+        y_test.shape[1] and y_pred.shape[1]
+    except IndexError:
+        raise ValueError(
+            'In a multiclass case, y_test and y_pred must be converted into a matrix of dummy variables \
+            (e.g. using pd.get_dummies(y_pred)).')
+
+    # precision recall curve
+    precision = dict()
+    recall = dict()
+    n_classes = y_train.shape[1]
+    for i in range(n_classes):
+        precision[i], recall[i], _ = precision_recall_curve(y_test[:, i], y_pred[:, i])
+        plt.plot(recall[i], precision[i], lw=2, label='class {}'.format(i))
+
+    plt.plot([0, 1], [1, 0], 'k--')
+    plt.xlabel("recall")
+    plt.ylabel("precision")
+    plt.legend(loc="best")
+    plt.title(f"Precision-Recall curve for {name}")
+
+    if os.path.exists(f"./temp_report_{data}") is False:
+        os.mkdir(f"./temp_report_{data}")
+    plt.savefig(f"./temp_report_{data}/{name}_PR.png", dpi=300, bbox_inches='tight')
+
+    plt.show()
 
 
 if __name__ == '__main__':

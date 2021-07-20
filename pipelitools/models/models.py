@@ -167,14 +167,8 @@ class Model:
 
         return cv, y_pred
 
-    def evaluate_test(self, model, name, X_test, y_test, y_train):
+    def evaluate(self, model, name, X_test, y_test, y_train):
         m.metrics_report(model, name, X_test, y_test, y_train, data='test')
-
-    def learning_cuve(self):
-        pass
-
-    def ROC_ACU(self):
-        pass
 
 
 if __name__ == '__main__':
