@@ -1,6 +1,5 @@
-=======
-History
-=======
+# History
+
 
 0.1.0 (2021-06-11)
 ------------------
@@ -17,3 +16,13 @@ History
 
 * Added tests for every module
 * Renaming
+
+1.1.2 (2021-07-08)
+------------------
+
+* Bug fixes
+
+1.1.3 (2021-07-13)
+------------------
+
+* `README.md` fixes

@@ -18,6 +18,8 @@ fig
 data
 classification_report_validation
 classification_report_test
+src
+
 
 ######################################################################################
 # Byte-compiled / optimized / DLL files
