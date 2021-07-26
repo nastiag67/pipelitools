@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import scipy.stats
 from pandas_profiling import ProfileReport
 from pipelitools import utils as u
-
+import os
 
 def test_eda():
     """ """
@@ -270,7 +270,7 @@ class Dataset:
 
         if check_normdist:
             u.log(u.black('Plotting distributions of variables against normal distribution'))
-            check_distribution(df_numeric.columns, plot_cols=6)
+            check_distribution(plot_cols=6)
 
         # Plotting boxplots
         def boxplots(plot_cols=6):

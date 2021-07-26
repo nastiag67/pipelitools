@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import itertools
 import os
+import seaborn as sns
+sns.color_palette("tab10")
 
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, auc
 from sklearn.metrics import precision_recall_curve
@@ -89,8 +91,7 @@ def metrics_report(model, name, X_test, y_test, y_train, data='test'):
         Responses used for testing.
     y_train : pd.Series
         Responses used for training.
-    data : bool
-         (Default value = 'test')
+    data : bool, default='test'
         Type of report to create depending on input data: 'test' for testing, 'validation' for validation.
 
     Returns
@@ -143,13 +144,13 @@ def learning_cuve(training, validation, name='Metric'):
 def ROCcurve_multiclass(name, y_train, y_pred, y_test, data='validation'):
 
     try:
-        y_test.shape[1] and y_pred.shape[1]
+        y_test.shape[1] and y_pred.shape[1] and y_train.shape[1]
     except IndexError:
         raise ValueError(
             'In a multiclass case, y_test and y_pred must be converted into a matrix of dummy variables \
-            (e.g. using pd.get_dummies(y_pred)).')
+            \n(e.g. using np.array(pd.get_dummies(y_pred))).')
 
-    print(roc_auc_score(y_test, y_pred, average='macro'))
+    print(f"ROC-AUC score: {round(roc_auc_score(y_test, y_pred, average='macro'), 4)}")
 
     # Compute ROC curve and ROC area for each class
     fpr = dict()
@@ -166,12 +167,13 @@ def ROCcurve_multiclass(name, y_train, y_pred, y_test, data='validation'):
 
     # Plot ROC curve
     plt.figure()
-    plt.plot(fpr["macro"], tpr["macro"], '--',
-             label='macro-average ROC curve (area = {0:0.2f})'
-                   ''.format(roc_auc["macro"]))
     for i in range(n_classes):
         plt.plot(fpr[i], tpr[i], label='class {0} (area = {1:0.2f})'
                                        ''.format(i, roc_auc[i]))
+
+    plt.plot(fpr["macro"], tpr["macro"], '--',
+             label='macro-average ROC curve (area = {0:0.2f})'
+                   ''.format(roc_auc["macro"]))
 
     plt.plot([0, 1], [0, 1], 'k--')
     plt.xlim([-0.02, 1])
@@ -193,11 +195,11 @@ def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
     """
 
     try:
-        y_test.shape[1] and y_pred.shape[1]
+        y_test.shape[1] and y_pred.shape[1] and y_train.shape[1]
     except IndexError:
         raise ValueError(
             'In a multiclass case, y_test and y_pred must be converted into a matrix of dummy variables \
-            (e.g. using pd.get_dummies(y_pred)).')
+            \n(e.g. using np.array(pd.get_dummies(y_pred))).')
 
     # precision recall curve
     precision = dict()
@@ -205,11 +207,15 @@ def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
     n_classes = y_train.shape[1]
     for i in range(n_classes):
         precision[i], recall[i], _ = precision_recall_curve(y_test[:, i], y_pred[:, i])
-        plt.plot(recall[i], precision[i], lw=2, label='class {}'.format(i))
+        plt.plot(recall[i], precision[i], lw=2,
+                 label=f"class {i} (area = {round(auc(recall[i], precision[i]), 2)})")
 
-    plt.plot([0, 1], [1, 0], 'k--')
-    plt.xlabel("recall")
-    plt.ylabel("precision")
+        # no_skill = len(y_test[:, i][y_test[:, i] == 1]) / len(y_test[:, i] )
+        # plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
+
+    # plt.plot([0, 1], [0.5, 0.5], 'k--')
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
     plt.legend(loc="best")
     plt.title(f"Precision-Recall curve for {name}")
 
@@ -218,6 +224,45 @@ def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
     plt.savefig(f"./temp_report_{data}/{name}_PR.png", dpi=300, bbox_inches='tight')
 
     plt.show()
+
+
+def compare_models(model, name, X_test, y_test, y_train, *args, proba=True, data='validation'):
+    """ Executes the functions specified in *args applied to a particular classification model.
+
+    Note: it is recommended that data is specified explicitly!
+
+    Parameters
+    ----------
+    model : fitted model (e.g. sklearn.model_selection._search.GridSearchCV if GridSearchCV is used).
+        The fitted model.
+    name : str
+        Name of the fitted model.
+    X_test : pd.DataFrame.
+        Features used for testing.
+    y_test : pd.Series
+        Responses used for testing.
+    y_train : pd.Series
+        Responses used for training.
+    *args : arguments
+        Functions which calculate the necessary metrics (e.g. roc = mt.ROCcurve_multiclass).
+        Should have the arguments: arg(name, y_train, y_pred, y_test, data='validation')
+    proba : bool
+        True to calculate probability of occurrence of a class.
+    data : bool, default='test'
+        Type of report to create depending on input data: 'test' for testing, 'validation' for validation.
+
+    Returns
+    -------
+    Executes the functions specified in *args applied to a particular classification model.
+    """
+    if proba:
+        y_pred = model.predict_proba(X_test)
+    else:
+        y_pred = model.predict(X_test)
+        y_pred = np.array(pd.get_dummies(y_pred))
+
+    for arg in args:
+        arg(name, y_train, y_pred, y_test, data=data)
 
 
 if __name__ == '__main__':
