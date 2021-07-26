@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import itertools
 import os
-import pickle
+import seaborn as sns
+sns.color_palette("tab10")
 
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, auc
 from sklearn.metrics import precision_recall_curve
@@ -206,9 +207,13 @@ def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
     n_classes = y_train.shape[1]
     for i in range(n_classes):
         precision[i], recall[i], _ = precision_recall_curve(y_test[:, i], y_pred[:, i])
-        plt.plot(recall[i], precision[i], lw=2, label='class {}'.format(i))
+        plt.plot(recall[i], precision[i], lw=2,
+                 label=f"class {i} (area = {round(auc(recall[i], precision[i]), 2)})")
 
-    plt.plot([0, 1], [1, 0], 'k--')
+        # no_skill = len(y_test[:, i][y_test[:, i] == 1]) / len(y_test[:, i] )
+        # plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
+
+    # plt.plot([0, 1], [0.5, 0.5], 'k--')
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.legend(loc="best")
