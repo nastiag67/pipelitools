@@ -11,7 +11,9 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = ['pandas', 'numpy', 'scipy', 'seaborn', 'matplotlib', 'pandas_profiling',
-                      'sklearn', 'datetime', 'xlwings']
+                      'sklearn', 'datetime',
+                # 'xlwings'
+                ]
 
 test_requirements = ['pytest>=3', ]
 
