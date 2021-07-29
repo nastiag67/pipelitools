@@ -134,11 +134,49 @@ def learning_cuve(training, validation, name='Metric'):
         List of validation metrics.
     """
     plt.plot(training, label='train', color='C0', linestyle='-')
-    plt.plot(validation, label='valid', color='C0', linestyle=':')
+    plt.plot(validation, label='test', color='C0', linestyle=':')
     plt.title(f"{name} learning curve")
     plt.xlabel("Epochs")
     plt.ylabel(name)
     plt.legend()
+    plt.show()
+
+
+def CM(name, y_train, y_pred, y_test, data='validation'):
+    """
+    y_pred, y_test must be np.array
+    """
+
+    assert data in ['test', 'validation'], "Parameter 'data' must be either 'test', or 'validation'."
+
+    try:
+        y_test.shape[1] and y_pred.shape[1] and y_train.shape[1]
+        y_pred = np.argmax(y_pred, axis=1)
+        y_test = np.argmax(y_test, axis=1)
+        y_train = np.argmax(y_train, axis=1)
+    except IndexError:
+        pass
+
+    a = classification_report(y_test, y_pred, labels=np.unique(y_train))
+    u.export_str(a, f"./temp_report_{data}/{name}.txt")
+    print(a)
+
+    # plot the confusion matrix
+    if not isinstance(y_pred, np.ndarray):
+        y_pred = y_pred.values
+
+    plot_confusion_matrix(y_test=y_test,
+                          y_pred=y_pred,
+                          labels=np.unique(y_test),
+                          normalize=True,
+                          title=f'Confusion matrix for {name}',
+                          cmap=plt.cm.Blues)
+
+    # save figure to folder 'fig'
+    if os.path.exists(f"./temp_report_{data}") is False:
+        os.mkdir(f"./temp_report_{data}")
+    plt.savefig(f"./temp_report_{data}/{name}.png", dpi=300, bbox_inches='tight')
+    plt.show()
 
 
 def ROCcurve_multiclass(name, y_train, y_pred, y_test, data='validation'):
@@ -210,10 +248,6 @@ def PR_multiclass(name, y_train, y_pred, y_test, data='validation'):
         plt.plot(recall[i], precision[i], lw=2,
                  label=f"class {i} (area = {round(auc(recall[i], precision[i]), 2)})")
 
-        # no_skill = len(y_test[:, i][y_test[:, i] == 1]) / len(y_test[:, i] )
-        # plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
-
-    # plt.plot([0, 1], [0.5, 0.5], 'k--')
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.legend(loc="best")
