@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-import xlwings as xw
+# import xlwings as xw
 from functools import wraps
 import datetime
 import pandas as pd
@@ -213,24 +213,24 @@ def export_str(output, filename):
         f.write(output)
 
 
-def export_xls(output, filename, sheetname, after=None):
-    try:
-        # UPDATE EXCEL
-        wb = xw.Book(filename+'.xlsx')
-        try:
-            sht1 = wb.sheets[sheetname]
-        except:
-            if after!=None:
-                wb.sheets.add(name=sheetname)
-            else:
-                wb.sheets.add(name=sheetname, after = after)
-            sht1 = wb.sheets[sheetname]
-        sht1.range('A1').value = output
-    except FileNotFoundError:
-        # EXPORT
-        writer = pd.ExcelWriter(filename + '.xlsx')
-        output.to_excel(writer, sheet_name=sheetname)
-        writer.save()
+# def export_xls(output, filename, sheetname, after=None):
+#     try:
+#         # UPDATE EXCEL
+#         wb = xw.Book(filename+'.xlsx')
+#         try:
+#             sht1 = wb.sheets[sheetname]
+#         except:
+#             if after!=None:
+#                 wb.sheets.add(name=sheetname)
+#             else:
+#                 wb.sheets.add(name=sheetname, after = after)
+#             sht1 = wb.sheets[sheetname]
+#         sht1.range('A1').value = output
+#     except FileNotFoundError:
+#         # EXPORT
+#         writer = pd.ExcelWriter(filename + '.xlsx')
+#         output.to_excel(writer, sheet_name=sheetname)
+#         writer.save()
 
 
 def export_pic(fig_name, folder=None):
